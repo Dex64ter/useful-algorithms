@@ -24,8 +24,22 @@ st2 = 'PRONTO'
 st3 = 'EXECUTANDO'
 st4 = 'TERMINADO'
 
+def geraListaEspecifica(lis, caract):
+    res = []
+    for t1 in lis:
+        res.append(t1[caract])
+    return res
 
-def Prioridades(entry):
+
+def verificaMaiorPrioridade(lis):
+    ms = []
+    for i in lis:
+        ms.append(i[2])
+    
+    return ms.index(max(ms))
+
+
+def PrioridadesDinamicas(entry):
     # Adição da prioridade e status:
     # 3º prioridade do processo
     # 4º status do processo
@@ -33,25 +47,26 @@ def Prioridades(entry):
         i.append(0)
         i.append(st1)
     
-    lista_auxiliar = [st1]*len(entry)
+    
     tempo = 0
-    while entry:
+    while True:
         for j in entry:
-            if j[0] <= tempo:
-                if j[3] == st1:
-                    j[3] = st2
-                    if st3 not in lista_auxiliar:
-                        j[3] = st3
-                elif j[3] == st3:
-                    if j[2] > 0:
-                        j[2] -= 1
-                else:
-                    j[2] += 1
+            if j[0] <= tempo and "EXECUTANDO" not in geraListaEspecifica(entry, 3):
+                j[3] = st3
+            elif j[0] <= tempo:
+                j[3] = st2
+            
+            if j[3] == 'EXECUTANDO':
+                if j[2] > 0:
+                    j[2] -= 1
+            else:
+                j[2] += 1
 
+        print()
 
-
-            j[2] += 1
         tempo += 1
+        if len(set(geraListaEspecifica(entry, 3)))==1 and list(set(geraListaEspecifica(entry, 3)))[0] == "PRONTO":
+            break
 
 # Função de processamento da entrada
 # recebimento por leitura de arquivo e
@@ -59,7 +74,7 @@ def Prioridades(entry):
 def procesEntry(into):
     s=[]
     for i in into:
-        s.append(i.split(" "))
+        s.append(list(map(int, i.split(" "))))
     return s
 
 
@@ -76,4 +91,5 @@ if __name__ == "__main__":
     entrada1 = dpcp(entrada0)
     entrada2 = dpcp(entrada0)
 
-    Prioridades(entrada1)
+    PrioridadesDinamicas(entrada1)
+    print(entrada1)
