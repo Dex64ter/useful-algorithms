@@ -72,13 +72,13 @@ def PrioridadesDinamicas(entry):
             elif entry[j][0] <= tempo and entry[j][3] == st1:
                 entry[j][3] = st2
 
-            if entry[j][3] == st3:
+            if entry[j][3] == st3:              # A partir daqui, add as prioridades, os processos em execução diminuem
                 if entry[j][2] > 0:
                     entry[j][2] -= 1
-            elif entry[j][3] == st4:
+            elif entry[j][3] == st4:            # caso já tenha terminado, a prioridade já está em -1 e não é adicionada mais
                 continue
             else:
-                entry[j][2] += 1
+                entry[j][2] += 1                # os processos em estado pronto ou espera aumentam
 
             if entry[j][3] == st2:
                 tempEspera[j] += 1
