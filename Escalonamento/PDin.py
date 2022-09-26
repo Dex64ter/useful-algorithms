@@ -1,45 +1,38 @@
-# a. A cada processo é atribuída uma mesma prioridade de escalonamento inicial 
-# que é alterada com o passar do tempo.
-
-# b. Se o processo não está no estado executando, o escalonador periodicamente 
-# aumenta a sua prioridade. 
-
-# c. Quanto mais o processo recebe a posse da CPU mais o escalonador reduz a 
-# sua prioridade.
-
-# d. As prioridades são alteradas a cada instante de tempo.
-
-# e. O escalonador sempre seleciona o processo com a prioridade mais alta dentre 
-# aqueles no estado pronto
-
-# f. Processos com mesma prioridade, devem seguir a ordem de chegada na fila.
-
-# g. O escalonador DEVE forçar a preempção do processo em execução sempre 
-# que houver um processo de maior prioridade
-
 from copy import deepcopy as dpcp
+from time import sleep
 
 st1 = 'ESPERA'
 st2 = 'PRONTO'
 st3 = 'EXECUTANDO'
 st4 = 'TERMINADO'
 
+# Gera lista de uma determinada característica do processo
 def geraListaEspecifica(lis, caract):
     res = []
     for t1 in lis:
         res.append(t1[caract])
     return res
 
-
+# verifica o processo com maior prioridade que esteja no estado pronto
+# caso não tenha nenhum pronto, devolve -1
 def verificaMaiorPrioridade(lis):
-    ms = []
-    for i in lis:
-        ms.append(i[2])
+    ms = [-1]*len(lis)
+    for i in range(len(lis)):
+        if lis[i][3] == st2:
+            ms[i] = (lis[i][2])
     
-    return ms.index(max(ms))
+    if max(ms) != -1:
+        return ms.index(max(ms))
+    else:
+        return -1
 
-
+# função principal das Prioridades Dinâmicas
 def PrioridadesDinamicas(entry):
+    # Listas para somatório e transformação dos resultados
+    tempRetorno = [0]*len(entry)
+    tempResposta = [0]*len(entry)
+    tempEspera = [0]*len(entry)
+
     # Adição da prioridade e status:
     # 3º prioridade do processo
     # 4º status do processo
@@ -47,26 +40,53 @@ def PrioridadesDinamicas(entry):
         i.append(0)
         i.append(st1)
     
-    
-    tempo = 0
+    finished = [0]*len(entry)       # lista para decidir se um processo já executou no número adequado de vezes
+    tempo = 0           # tempo do processamento
     while True:
-        for j in entry:
-            if j[0] <= tempo and "EXECUTANDO" not in geraListaEspecifica(entry, 3):
-                j[3] = st3
-            elif j[0] <= tempo:
-                j[3] = st2
+        if st3 in geraListaEspecifica(entry, 3):            # Parte que verifica quando um processo já está em execução
+            k1 = geraListaEspecifica(entry, 3).index(st3)   # e verifica qual processo está em execução
+            finished[k1] += 1                               # adicionando o tempo de processo dele
+            if verificaMaiorPrioridade(entry) != -1 :
+                k2 = verificaMaiorPrioridade(entry)         # verifica qual o processo está com maior prioridade naquele momento
+                if k1 != k2:
+                    if entry[k1][1] == finished[k1]:            
+                        entry[k1][3], entry[k2][3] = st4 , st3  # coloca o processo com maior prioridade em execução
+                        entry[k1][2] = -1                       # caso o processo anterior tenha acabado o seu tempo de execução em entra em estado "TERMINADO"
+                    else:
+                        entry[k1][3], entry[k2][3] = st2 , st3
+                    
+                    if finished[k2] == 0:
+                        tempResposta[k2] = tempo - entry[k2][0]
+
+            tempRetorno[k1] = tempo - entry[k1][0]
             
-            if j[3] == 'EXECUTANDO':
-                if j[2] > 0:
-                    j[2] -= 1
+        for j in range(len(entry)):
+            
+            if entry[j][3] == st4:
+                continue
+            elif entry[j][3] == st3 and finished[j] == entry[j][1]:
+                entry[j][3] = st4
+            elif (entry[j][0] <= tempo) and (st3 not in geraListaEspecifica(entry, 3)) and entry[j][3] != st4:
+                entry[j][3] = st3
+                tempResposta[j] = tempo - entry[j][0]
+            elif entry[j][0] <= tempo and entry[j][3] == st1:
+                entry[j][3] = st2
+
+            if entry[j][3] == st3:
+                if entry[j][2] > 0:
+                    entry[j][2] -= 1
+            elif entry[j][3] == st4:
+                continue
             else:
-                j[2] += 1
+                entry[j][2] += 1
 
-        print()
-
+            if entry[j][3] == st2:
+                tempEspera[j] += 1
         tempo += 1
-        if len(set(geraListaEspecifica(entry, 3)))==1 and list(set(geraListaEspecifica(entry, 3)))[0] == "PRONTO":
+        if len(set(geraListaEspecifica(entry, 3)))==1 and list(set(geraListaEspecifica(entry, 3)))[0] == st4:
             break
+    print("PRI %.2f %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry), sum(tempEspera)/len(entry)))
+    
 
 # Função de processamento da entrada
 # recebimento por leitura de arquivo e
@@ -92,4 +112,4 @@ if __name__ == "__main__":
     entrada2 = dpcp(entrada0)
 
     PrioridadesDinamicas(entrada1)
-    print(entrada1)
+    
