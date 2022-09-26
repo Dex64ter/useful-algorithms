@@ -51,16 +51,16 @@ def PrioridadesDinamicas(entry):
                 if k1 != k2:
                     if entry[k1][1] == finished[k1]:            
                         entry[k1][3], entry[k2][3] = st4 , st3  # coloca o processo com maior prioridade em execução
-                        entry[k1][2] = -1                       # caso o processo anterior tenha acabado o seu tempo de execução em entra em estado "TERMINADO"
+                        entry[k1][2] = -1                       # caso o processo anterior tenha acabado o seu tempo de execução ele entra em estado "TERMINADO"
                     else:
-                        entry[k1][3], entry[k2][3] = st2 , st3
+                        entry[k1][3], entry[k2][3] = st2 , st3  # senão volta pro estado pronto
                     
                     if finished[k2] == 0:
-                        tempResposta[k2] = tempo - entry[k2][0]
+                        tempResposta[k2] = tempo - entry[k2][0] # Calculo do tempo de resposta de cada processo
 
-            tempRetorno[k1] = tempo - entry[k1][0]
+            tempRetorno[k1] = tempo - entry[k1][0]              # calcilo do tempo de Retorno de cada processo
             
-        for j in range(len(entry)):
+        for j in range(len(entry)):             # loop para verificar o estado de cada processo
             
             if entry[j][3] == st4:
                 continue
@@ -83,9 +83,9 @@ def PrioridadesDinamicas(entry):
             if entry[j][3] == st2:
                 tempEspera[j] += 1
         tempo += 1
-        if len(set(geraListaEspecifica(entry, 3)))==1 and list(set(geraListaEspecifica(entry, 3)))[0] == st4:
+        if len(set(geraListaEspecifica(entry, 3)))==1 and list(set(geraListaEspecifica(entry, 3)))[0] == st4:       # verifica se todos os processos já terminaram
             break
-    print("PRI %.2f %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry), sum(tempEspera)/len(entry)))
+    print("PRI %.2f %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry), sum(tempEspera)/len(entry))) # manipulação do resultados para prioridades dinâmicas
     
 
 # Função de processamento da entrada
