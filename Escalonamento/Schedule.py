@@ -99,6 +99,7 @@ def loteria(entry):
     for i in entry:
         i.append(st1)
     my_process = list(range(len(entry)))
+<<<<<<< HEAD:Escalonamento/Schedule.py
     print(my_process)
     tempo = 0
     while my_process:
@@ -119,6 +120,12 @@ def loteria(entry):
                     tempRetorno[chos] = tempo - entry[chos][0]
                     my_process.remove(chos)
         else:
+=======
+    tempo = 0
+    while my_process:
+        chos = choice(my_process) 
+        if entry[chos][2] != st4 and entry[chos][0] <= tempo:
+>>>>>>> 5d008c2f41e0e1c5298b45be9188549562ef22f2:Escalonamento/PDin.py
             if entry[chos][2] == st2:
                 tempResposta[chos] = tempo - entry[chos][0]
             entry[chos][2] = st3
@@ -131,7 +138,10 @@ def loteria(entry):
         # print(tempo, entry)
         tempo += quantum
         # sleep(2)
+<<<<<<< HEAD:Escalonamento/Schedule.py
     print(tempResposta)
+=======
+>>>>>>> 5d008c2f41e0e1c5298b45be9188549562ef22f2:Escalonamento/PDin.py
     print("LOT %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry)))
 
 # Função de processamento da entrada
@@ -159,4 +169,8 @@ if __name__ == "__main__":
 
     prioridadesDinamicas(entrada0)
     loteria(entrada1)
+<<<<<<< HEAD:Escalonamento/Schedule.py
     
+=======
+    
+>>>>>>> 5d008c2f41e0e1c5298b45be9188549562ef22f2:Escalonamento/PDin.py
