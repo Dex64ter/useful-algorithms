@@ -1,6 +1,8 @@
 from copy import deepcopy as dpcp
+from random import choice
 from time import sleep
 
+quantum = 1
 st1 = 'ESPERA'
 st2 = 'PRONTO'
 st3 = 'EXECUTANDO'
@@ -27,7 +29,7 @@ def verificaMaiorPrioridade(lis):
         return -1
 
 # função principal das Prioridades Dinâmicas
-def PrioridadesDinamicas(entry):
+def prioridadesDinamicas(entry):
     # Listas para somatório e transformação dos resultados
     tempRetorno = [0]*len(entry)
     tempResposta = [0]*len(entry)
@@ -82,11 +84,55 @@ def PrioridadesDinamicas(entry):
 
             if entry[j][3] == st2:
                 tempEspera[j] += 1
+
         tempo += 1
         if len(set(geraListaEspecifica(entry, 3)))==1 and list(set(geraListaEspecifica(entry, 3)))[0] == st4:       # verifica se todos os processos já terminaram
             break
     print("PRI %.2f %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry), sum(tempEspera)/len(entry))) # manipulação do resultados para prioridades dinâmicas
     
+
+def loteria(entry):
+    tempRetorno = [0]*len(entry)
+    tempResposta = [0]*len(entry)
+    tempEspera = [0]*len(entry)
+
+    for i in entry:
+        i.append(st1)
+    my_process = list(range(len(entry)))
+    print(my_process)
+    tempo = 0
+    while my_process:
+        for i in entry:
+            if (i[2] != st4 and i[2] != st3) and i[0] <= tempo:
+                i[2] = st2
+
+        chos = choice(my_process)
+        if st3 in geraListaEspecifica(entry, 2):
+            if geraListaEspecifica(entry, 2).index(st3) != chos:
+                entry[geraListaEspecifica(entry, 2).index(st3)][2] = st2
+                if entry[chos][2] == st2:
+                    tempResposta[chos] = tempo - entry[chos][0]
+                entry[chos][2] = st3
+                entry[chos][1] -= quantum
+                if entry[chos][1] <= 0:
+                    entry[chos][2] = st4
+                    tempRetorno[chos] = tempo - entry[chos][0]
+                    my_process.remove(chos)
+        else:
+            if entry[chos][2] == st2:
+                tempResposta[chos] = tempo - entry[chos][0]
+            entry[chos][2] = st3
+            entry[chos][1] -= quantum
+            if entry[chos][1] <= 0:
+                entry[chos][2] = st4
+                tempRetorno[chos] = tempo - entry[chos][0]
+                my_process.remove(chos)
+
+        # print(tempo, entry)
+        tempo += quantum
+        # sleep(2)
+    print(tempResposta)
+    print("LOT %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry)))
 
 # Função de processamento da entrada
 # recebimento por leitura de arquivo e
@@ -111,5 +157,6 @@ if __name__ == "__main__":
     entrada1 = dpcp(entrada0)
     entrada2 = dpcp(entrada0)
 
-    PrioridadesDinamicas(entrada1)
+    prioridadesDinamicas(entrada0)
+    loteria(entrada1)
     
