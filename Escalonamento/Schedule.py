@@ -20,9 +20,8 @@ def geraListaEspecifica(lis, caract):
 def verificaMaiorPrioridade(lis):
     ms = [-1]*len(lis)
     for i in range(len(lis)):
-        if lis[i][3] == st2:
+        if lis[i][3] == st2 or lis[i][3] == st3:
             ms[i] = (lis[i][2])
-    
     if max(ms) != -1:
         return ms.index(max(ms))
     else:
@@ -84,7 +83,7 @@ def prioridadesDinamicas(entry):
 
             if entry[j][3] == st2:
                 tempEspera[j] += 1
-
+        # print(entry)
         tempo += 1
         if len(set(geraListaEspecifica(entry, 3)))==1 and list(set(geraListaEspecifica(entry, 3)))[0] == st4:       # verifica se todos os processos já terminaram
             break
@@ -99,7 +98,7 @@ def loteria(entry):
     for i in entry:
         i.append(st1)
     my_process = list(range(len(entry)))
-    print(my_process)
+    # print(my_process)
     tempo = 0
     while my_process:
         for i in entry:
@@ -127,10 +126,9 @@ def loteria(entry):
                 entry[chos][2] = st4
                 tempRetorno[chos] = tempo - entry[chos][0]
                 my_process.remove(chos)
-        # print(tempo, entry)
+        # print(my_process)
         tempo += quantum
-        # sleep(2)
-    print(tempResposta)
+
     print("LOT %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry)))
 
 # Função de processamento da entrada
