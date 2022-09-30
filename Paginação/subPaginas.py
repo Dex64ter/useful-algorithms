@@ -15,11 +15,12 @@ def attDicio(entry, index, dicio):
 # não vai mais ser usada, caso ela n seja mais usada, ela devolve -1 e ela será a substituída
 # caso todas ainda sejam usadas, ele devolve a com maior rótulo (posição mais distnate a ser executada)
 # para ser substituída 
-def pegaMaiorRotulo(dicio):
+def pegaMaiorRotulo( dicio):
     if -1 not in dicio.values():
         for key, value in dicio.items():
             if value == max(dicio.values()):
                 return key
+
     else:
         for key, value in dicio.items():
             if value == -1:
@@ -27,30 +28,30 @@ def pegaMaiorRotulo(dicio):
 
 
 
-def conjuntoTrabalho(slots, entry):
-    tempo = 0
+def conjuntoTrabalho(slots, entry):         # OK
     page_faults = 0
-    limiar = (slots/2) + 1
-
+    limiar = int(slots/2) + 1
+    ws = set()
     pages = set()
-    lugares = Queue()
     
-    for i in range(len(entry)):
-        if len(pages) < slots:
-            if entry[i] not in pages:
-                pages.add(entry[i])
-                falha_pag += 1
-                lugares.put(entry[i])
+    for i in range(len(entry)):             # loop para todas as referências
+        if len(ws) < limiar:                # parte da funçaõ que verifica quais referências vão estar no cnjunto de trabalho
+            if entry[i] not in ws:          # se a referência não estiver no conjunto de trabalho ele entra
+                ws.add(entry[i])
         else:
-            if entry[i] not in pages:
-                pg = lugares.queue[0]
-                lugares.get()
-                pages.remove(pg)
+            ws = set(entry[i-limiar:i])     # caso o conjunto de trabalho estiver cheio, ele atualiza o conjunto de trabalho com os últimos processos mantendo o tamanho do limiar
+            
+        if len(pages) < slots:              # Caso os slots estiverem vazios
+            if entry[i] not in pages:       # E a referência não já estiver nos slots, adiciona o processo nos slots vazios
                 pages.add(entry[i])
-                lugares.put(entry[i])
-                falha_pag += 1
+                page_faults += 1            # Adiciona falta de páginas a todos que foram adicionados
+        else:
+            if entry[i] not in pages:                       # caso os slots estejam cheios
+                pages.remove(list(pages.difference(ws))[0]) # Verifica quais dos processos não está no working set
+                pages.add(entry[i])                         # e substitui o que não está no working set 
+                page_faults += 1
 
-    print()
+    print("CT", page_faults)
 
 
 def algOtimo(slots, entry):                 # OK
@@ -66,12 +67,16 @@ def algOtimo(slots, entry):                 # OK
                 attDicio(entry, i, pag) # E adiciona o elemeno no dicionário
         else:
             if entry[i] not in pages:       # Aqui faz a verificação se a referência não está nos slots 
-                page_faults += 1    
-                pages.remove(pegaMaiorRotulo(pag))  # verifica qual a com maior rótulo ou se tem alguma que já acabou seu uso
+                page_faults += 1   
+                r = pegaMaiorRotulo(pag) 
+                pages.remove(r)  # verifica qual a com maior rótulo ou se tem alguma que já acabou seu uso
+                del pag[r]
                 pages.add(entry[i])                 # atualiza os slots
                 attDicio(entry, i, pag)             # atualiza o dicionário
             else:
                 attDicio(entry, i, pag)             # caso ele já esteja nos slots apenas atualiza os rótulos
+        # print(pages, pag)
+        # sleep(2)
     print("OTM %d" % (page_faults))
 
 # Função para imprimir o resultado do algoritmo de segunda chance
@@ -116,10 +121,22 @@ def secondChance(slots, entry):                 # OK
 # primeiro elemento é a quantidade de slots na memória e todos os outros são referências
 # a ela  
 if __name__ == "__main__":
-    with open("file.txt", 'r+') as entrada:
-        e = list(map(int, entrada.read().split("\n")))
-        slots = e[0]                        # Espaços na memória
-        paginas = e[1:]                     # Referências à memória
+    # with open("file.txt", 'r') as entrada:
+    #     l = entrada.read().split("\n")
+        
+    l = []
+    while True:
+        try:
+            e = input()
+            l.append(e)
+        except EOFError:
+            break
+
+    lis = list(map(int, l))
+    slots = lis[0]
+    paginas = lis[1:]
+
     # print(paginas)
     secondChance(slots, paginas)                # Função do algoritmo de Segunda Chance
     algOtimo(slots, paginas)                # Função do Algoritmo Ótimo
+    conjuntoTrabalho(slots, paginas)
