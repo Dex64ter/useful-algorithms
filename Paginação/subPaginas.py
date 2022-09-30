@@ -75,8 +75,7 @@ def algOtimo(slots, entry):                 # OK
                 attDicio(entry, i, pag)             # atualiza o dicionário
             else:
                 attDicio(entry, i, pag)             # caso ele já esteja nos slots apenas atualiza os rótulos
-        # print(pages, pag)
-        # sleep(2)
+
     print("OTM %d" % (page_faults))
 
 # Função para imprimir o resultado do algoritmo de segunda chance
@@ -121,8 +120,6 @@ def secondChance(slots, entry):                 # OK
 # primeiro elemento é a quantidade de slots na memória e todos os outros são referências
 # a ela  
 if __name__ == "__main__":
-    # with open("file.txt", 'r') as entrada:
-    #     l = entrada.read().split("\n")
         
     l = []
     while True:
