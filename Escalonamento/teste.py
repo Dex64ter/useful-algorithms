@@ -1,11 +1,16 @@
-
+import queue
 import random
 
-l = ["Ola", "eu", "sou", "seu", "amiguinho"]
+def retiraTerminado(dicio):
+    for key, val in dicio.items():
+        if val == "TERMINADO":
+            del dicio[key]
+            break
 
-ma = list(range(len(l)))
-
-while ma:
-    o = random.choice(ma)
-    print(l[o])
-    ma.remove(o)
+dicio = {
+    1: ["TERMINADO", 1, 0],
+}
+# print(list(dicio.keys()))
+print(dicio[1][0])
+dicio[1][0] = "Executando"
+print(dicio[1][0])

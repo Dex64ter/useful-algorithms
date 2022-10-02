@@ -1,158 +1,221 @@
-from copy import deepcopy as dpcp
 from random import choice
 from time import sleep
 
-quantum = 1
+quantum = 2
 st1 = 'ESPERA'
 st2 = 'PRONTO'
 st3 = 'EXECUTANDO'
 st4 = 'TERMINADO'
 
-# Gera lista de uma determinada característica do processo
-def geraListaEspecifica(lis, caract):
-    res = []
-    for t1 in lis:
-        res.append(t1[caract])
-    return res
-
-# verifica o processo com maior prioridade que esteja no estado pronto
-# caso não tenha nenhum pronto, devolve -1
-def verificaMaiorPrioridade(lis):
-    ms = [-1]*len(lis)
-    for i in range(len(lis)):
-        if lis[i][3] == st2 or lis[i][3] == st3:
-            ms[i] = (lis[i][2])
-    if max(ms) != -1:
-        return ms.index(max(ms))
-    else:
-        return -1
+# usado em Loteria
+def trocaExecucao(dicio):
+    for key, val in dicio.items():
+        if val == st3:
+            return key
+    return -1
 
 # função principal das Prioridades Dinâmicas
 def prioridadesDinamicas(entry):
-    # Listas para somatório e transformação dos resultados
     tempRetorno = [0]*len(entry)
     tempResposta = [0]*len(entry)
     tempEspera = [0]*len(entry)
-
-    # Adição da prioridade e status:
-    # 3º prioridade do processo
-    # 4º status do processo
-    for i in entry:
-        i.append(0)
-        i.append(st1)
+    dicio_process = {}
+    timer = 0
+    lista_execucoes = []
+    for i in range(len(entry)):
+        dicio_process[i] = [st1, 0, entry[i][1]]
     
-    finished = [0]*len(entry)       # lista para decidir se um processo já executou no número adequado de vezes
-    tempo = 0           # tempo do processamento
-    while True:
-        if st3 in geraListaEspecifica(entry, 3):            # Parte que verifica quando um processo já está em execução
-            k1 = geraListaEspecifica(entry, 3).index(st3)   # e verifica qual processo está em execução
-            finished[k1] += 1                               # adicionando o tempo de processo dele
-            if verificaMaiorPrioridade(entry) != -1 :
-                k2 = verificaMaiorPrioridade(entry)         # verifica qual o processo está com maior prioridade naquele momento
-                if k1 != k2:
-                    if entry[k1][1] == finished[k1]:            
-                        entry[k1][3], entry[k2][3] = st4 , st3  # coloca o processo com maior prioridade em execução
-                        entry[k1][2] = -1                       # caso o processo anterior tenha acabado o seu tempo de execução ele entra em estado "TERMINADO"
+    while dicio_process:
+        laux1={}
+        laux2={}
+        for n in dicio_process.keys():
+            if dicio_process[n][0] != st3:
+                if entry[n][0] <= timer:
+                    dicio_process[n][0] = st2
+            laux1[n] = (dicio_process[n][0])
+            laux2[n] = (dicio_process[n][1])
+        
+        prontos = {}
+        for kk , vv in dicio_process.items():
+            if vv[0] != st1:
+                prontos[kk] = vv
+
+        if dicio_process:
+            if st3 in laux1.values():
+                proc_atual = -1
+                for key, val in dicio_process.items():
+                    if val[0] == st3:
+                        proc_atual = key
+                        if dicio_process[key][1] > 0:
+                            dicio_process[key][1] -= 1
+                        laux2[key] = dicio_process[key][1]
                     else:
-                        entry[k1][3], entry[k2][3] = st2 , st3  # senão volta pro estado pronto
-                    
-                    if finished[k2] == 0:
-                        tempResposta[k2] = tempo - entry[k2][0] # Calculo do tempo de resposta de cada processo
+                        dicio_process[key][1] += 1
+                        laux2[key] = dicio_process[key][1]
 
-            tempRetorno[k1] = tempo - entry[k1][0]              # calcilo do tempo de Retorno de cada processo
-            
-        for j in range(len(entry)):             # loop para verificar o estado de cada processo
-            
-            if entry[j][3] == st4:
-                continue
-            elif entry[j][3] == st3 and finished[j] == entry[j][1]:
-                entry[j][3] = st4
-            elif (entry[j][0] <= tempo) and (st3 not in geraListaEspecifica(entry, 3)) and entry[j][3] != st4:
-                entry[j][3] = st3
-                tempResposta[j] = tempo - entry[j][0]
-            elif entry[j][0] <= tempo and entry[j][3] == st1:
-                entry[j][3] = st2
-
-            if entry[j][3] == st3:
-                if entry[j][2] > 0:
-                    entry[j][2] -= 1
-            elif entry[j][3] == st4:
-                continue
+                for k, v in prontos.items():
+                    if v == max(prontos.values()):
+                        if k != proc_atual:
+                            if laux1[k] == st2:
+                                dicio_process[proc_atual][0] = st2 
+                                dicio_process[k][0] = st3
+                                if k not in lista_execucoes:
+                                    tempResposta[k] = timer - entry[k][0]
+                                lista_execucoes.append(proc_atual)
+                                break
+                        else:
+                            lista_execucoes.append(k)
+                            break
             else:
-                entry[j][2] += 1
+                if st2 in laux1.values():
+                    for key, val in dicio_process.items():
+                        if val[1] == max(laux2.values()):
+                            if dicio_process[key][0] == st2:
+                                if key not in lista_execucoes:
+                                    tempResposta[key] = timer - entry[key][0]
+                                dicio_process[key][0] = st3
+                                break
+                    
+                    for key, val in dicio_process.items():
+                        if val[0] == st3:
+                            if dicio_process[key][1] > 0:
+                                dicio_process[key][1] -= 1
+                        else:
+                            dicio_process[key][1] += 1
 
-            if entry[j][3] == st2:
-                tempEspera[j] += 1
-        # print(entry)
-        tempo += 1
-        if len(set(geraListaEspecifica(entry, 3)))==1 and list(set(geraListaEspecifica(entry, 3)))[0] == st4:       # verifica se todos os processos já terminaram
-            break
+        remv = -1
+        for i in list(set(lista_execucoes)):
+            if lista_execucoes.count(i) == dicio_process[i][2]:
+                remv = i
+                tempRetorno[i] = timer - entry[i][0]
+                del dicio_process[i]
+
+        if remv != -1:
+            lista_execucoes = list(filter(lambda val: val != remv, lista_execucoes))
+
+        for z, x in dicio_process.items():
+            if x[0] == st2:
+                tempEspera[z] += 1
+        print(dicio_process)
+        sleep(1.5)
+        timer += 1
     print("PRI %.2f %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry), sum(tempEspera)/len(entry))) # manipulação do resultados para prioridades dinâmicas
     
+
 
 def loteria(entry):
     tempRetorno = [0]*len(entry)
     tempResposta = [0]*len(entry)
     tempEspera = [0]*len(entry)
-
-    for i in entry:
-        i.append(st1)
-    my_process = list(range(len(entry)))
-    # print(my_process)
+    process_dicio = {}
     tempo = 0
-    while my_process:
-        for i in entry:
-            if (i[2] != st4 and i[2] != st3) and i[0] <= tempo:
-                i[2] = st2
+    lista_execucao = []
+    for i in range(len(entry)):
+        process_dicio[i] = st1
+    
+    while True:
+        remv = -1
+        for x in process_dicio.keys():
+            if (lista_execucao.count(x)*quantum) >= entry[x][1]:
+                remv = x
+            elif process_dicio[x] != st3:
+                if (entry[x][0]) <= tempo:
+                    if process_dicio[x] == st1:
+                        tempRetorno[x] = tempo
+                        tempResposta[x] = tempo
+                    process_dicio[x] = st2
+                    tempEspera[x] += 1
 
-        chos = choice(my_process)
-        if st3 in geraListaEspecifica(entry, 2):
-            if geraListaEspecifica(entry, 2).index(st3) != chos:
-                entry[geraListaEspecifica(entry, 2).index(st3)][2] = st2
-                if entry[chos][2] == st2:
-                    tempResposta[chos] = tempo - entry[chos][0]
-                entry[chos][2] = st3
-                entry[chos][1] -= quantum
-                if entry[chos][1] <= 0:
-                    entry[chos][2] = st4
-                    tempRetorno[chos] = tempo - entry[chos][0]
-                    my_process.remove(chos)
+        if remv != -1:
+            del process_dicio[remv]
+            tempRetorno[remv] = tempo - tempRetorno[remv]
+            lista_execucao = list(filter(lambda val: val != remv, lista_execucao))
+        # print(process_dicio, " - ", tempRetorno)
+        if process_dicio:
+            dicio_prontos_exec = {}
+            for k, v in process_dicio.items():
+                if v != st1:
+                    dicio_prontos_exec[k] = v
+
+            if dicio_prontos_exec:
+                proc = choice(list(dicio_prontos_exec.keys()))
+                troca = trocaExecucao(dicio_prontos_exec)
+                if troca == -1:
+                    process_dicio[proc] = st3
+                    if proc not in lista_execucao:
+                        tempResposta[proc] = tempo - tempResposta[proc] 
+                else:
+                    process_dicio[troca] = st2
+                    lista_execucao.append(troca)
+                    process_dicio[proc] = st3
+                    if proc not in lista_execucao:
+                        tempResposta[proc] = tempo - tempResposta[proc]
         else:
-            if entry[chos][2] == st2:
-                tempResposta[chos] = tempo - entry[chos][0]
-            entry[chos][2] = st3
-            entry[chos][1] -= quantum
-            if entry[chos][1] <= 0:
-                entry[chos][2] = st4
-                tempRetorno[chos] = tempo - entry[chos][0]
-                my_process.remove(chos)
-        # print(my_process)
+            break
         tempo += quantum
+    print("LOT %.2f %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry), sum(tempEspera)/len(entry)))
+    
+def roundRobin(entry):
+    dicio_process = {}
+    tempEspera = [0]*len(entry)
+    tempResposta = [-1]*len(entry)
+    tempRetorno = [0]*len(entry)
+    comeco_fila = 0
+    timer = 0
+    for i in range(len(entry)):
+        dicio_process[i] = entry[i][1]
+    
+    while dicio_process:
+        if comeco_fila == len(entry):
+            comeco_fila = 0
+        # print(dicio_process, timer, "== ", tempEspera)
+        
+        if comeco_fila in dicio_process.keys():
+            if entry[comeco_fila][0] <= timer:
+                aux = False
+                va = 0
+                dicio_process[comeco_fila] = dicio_process[comeco_fila] - quantum
+                if tempResposta[comeco_fila] == -1:
+                    tempResposta[comeco_fila] = timer - entry[comeco_fila][0]
+                if dicio_process[comeco_fila] <= 0:
+                    aux = True
+                    va = dicio_process[comeco_fila]
+                    timer += dicio_process[comeco_fila] + quantum
+                    tempRetorno[comeco_fila] = timer - entry[comeco_fila][0]
+                    del dicio_process[comeco_fila]
+                else:
+                    timer += quantum
 
-    print("LOT %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry)))
+                for i in dicio_process.keys():
+                    if i != comeco_fila:
+                        if not aux:
+                            tempEspera[i] += quantum
+                        else:
+                            tempEspera[i] += va + quantum
 
-# Função de processamento da entrada
-# recebimento por leitura de arquivo e
-# formatação para uma lista de listas
-def procesEntry(into):
-    s=[]
-    for i in into:
-        s.append(list(map(int, i.split(" "))))
-    return s
+            else:
+                timer += quantum
+            comeco_fila += 1
+        else:
+            comeco_fila += 1
+    for j in range(len(tempEspera)):
+        tempEspera[j] = tempEspera[j] - entry[j][0]
+    print("RR %.2f %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry), sum(tempEspera)/len(entry)))
 
 
 if __name__ == "__main__":
-    
-    with open('file.txt', 'r+') as entry:
-        entrada = entry.read()
-        entrada = entrada.split("\n")
+    l = []
+    while True:
+        try:
+            e = input()
+            l.append(e)
+        except EOFError:
+            break
 
-    # Entrada de dados:
-    # 1º - instante da chegada do processo;
-    # 2º - duração de cada processo
-    entrada0 = procesEntry(entrada)
-    entrada1 = dpcp(entrada0)
-    entrada2 = dpcp(entrada0)
-
-    prioridadesDinamicas(entrada0)
-    loteria(entrada1)
+    entrada = []
+    for i in l:
+        entrada.append(list(map(int, (i.strip()).split(" "))))
+    # print(entrada)
+    prioridadesDinamicas(entrada)
+    loteria(entrada)
+    roundRobin(entrada)

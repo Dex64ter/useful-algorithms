@@ -35,7 +35,7 @@ def conjuntoTrabalho(slots, entry):         # OK
     pages = set()
     
     for i in range(len(entry)):             # loop para todas as referências
-        if len(ws) < limiar:                # parte da funçaõ que verifica quais referências vão estar no cnjunto de trabalho
+        if len(ws) < limiar:                # parte da funçaõ que verifica quais referências vão estar no conjunto de trabalho
             if entry[i] not in ws:          # se a referência não estiver no conjunto de trabalho ele entra
                 ws.add(entry[i])
         else:
@@ -86,6 +86,12 @@ def secondChance(slots, entry):                 # OK
     lugares = Queue()       # e um objeto fila para identificar os processos que já estão a muito tempo nela
     
     for i in range(len(entry)): # loop pelas referências
+        # Nesta parte do código, há a dinâmica de zerar o bit R a cada 4 referências à memória
+        lista_auxiliar.extend(list(pages))  # A lista auxiliar vai add toda lista set de pages
+        lista_auxiliar.sort()               # e em seguida ordena
+        
+
+        # print(lista_auxiliar)
         # Enquanto os slots não estiverem cheios
         # ele adiciona as referências aos slots junto ao acréscimo das faltas de páginas e entrada na fila 
         if len(pages) < slots: 
@@ -96,23 +102,24 @@ def secondChance(slots, entry):                 # OK
         else:
             # Caso os slots já estejam lotados, faz-se uma verificação
             # se caso a referência atual já está ou não dentro dos slots.
+            # print(lugares.queue[0],lugares.queue[1],lugares.queue[2],lugares.queue[3], " = ",lista_auxiliar)
             if entry[i] not in pages:
                 pg = lugares.queue[0]
                 lugares.get()
                 pages.remove(pg)
+                lista_auxiliar = list(filter(lambda pg: pg != j, lista_auxiliar))
                 pages.add(entry[i])
                 lugares.put(entry[i])
                 falta_pag += 1
 
-        # Nesta parte do código, há a dinâmica de zerar o bit R a cada 4 referências à memória
-        lista_auxiliar.extend(list(pages))  # A lista auxiliar vai add toda lista set de pages
-        lista_auxiliar.sort()               # e em seguida ordena
+            # print(lugares.queue[0],lugares.queue[1],lugares.queue[2],lugares.queue[3])
         for j in list(pages):
-            if lista_auxiliar.count(j) == 5:                # Quando um processo aparece 5 vezes nessa lista
-                lista_auxiliar = list(set(lista_auxiliar))  
+            if lista_auxiliar.count(j) == 4:                # Quando um processo aparece 5 vezes nessa lista
+                lista_auxiliar = list(set(lista_auxiliar))
                 val = lugares.queue[0]                      
                 lugares.get()                           
-                lugares.put(val)                            # ele é resetado e volta para o final da fila
+                lugares.put(val)               # ele é resetado e volta para o final da fila
+        
     print("SC %d" % (falta_pag))
 
 
