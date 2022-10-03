@@ -107,8 +107,8 @@ def prioridadesDinamicas(entry):
         for z, x in dicio_process.items():
             if x[0] == st2:
                 tempEspera[z] += 1
-        print(dicio_process)
-        sleep(1.5)
+        # print(dicio_process)
+        # sleep(1.5)
         timer += 1
     print("PRI %.2f %.2f %.2f" % (sum(tempRetorno)/len(entry), sum(tempResposta)/len(entry), sum(tempEspera)/len(entry))) # manipulação do resultados para prioridades dinâmicas
     
