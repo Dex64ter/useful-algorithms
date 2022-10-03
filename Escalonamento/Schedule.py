@@ -14,6 +14,11 @@ def trocaExecucao(dicio):
             return key
     return -1
 
+def maiorProcesso(dicio):
+    for key, val in dicio.items():
+        if val == max(dicio.values()):
+            return key
+
 # função principal das Prioridades Dinâmicas
 def prioridadesDinamicas(entry):
     tempRetorno = [0]*len(entry)
@@ -53,19 +58,25 @@ def prioridadesDinamicas(entry):
                         dicio_process[key][1] += 1
                         laux2[key] = dicio_process[key][1]
 
-                for k, v in prontos.items():
-                    if v == max(prontos.values()):
-                        if k != proc_atual:
-                            if laux1[k] == st2:
+                for k, v in laux2.items():
+                    if v == max(laux2.values()):
+                        if k != proc_atual and laux1[k] == st2:                            
                                 dicio_process[proc_atual][0] = st2 
                                 dicio_process[k][0] = st3
                                 if k not in lista_execucoes:
                                     tempResposta[k] = timer - entry[k][0]
                                 lista_execucoes.append(proc_atual)
                                 break
+                        elif k != proc_atual:
+                            kaux = maiorProcesso(prontos)
+                            dicio_process[proc_atual][0] = st2
+                            dicio_process[kaux][0] = st3
+                            if kaux not in lista_execucoes:
+                                    tempResposta[k] = timer - entry[k][0]
+                            lista_execucoes.append(proc_atual)
+                            break
                         else:
                             lista_execucoes.append(k)
-                            break
             else:
                 if st2 in laux1.values():
                     for key, val in dicio_process.items():
