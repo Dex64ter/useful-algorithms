@@ -14,7 +14,7 @@ def PrimeiroAChegar(processos):
     for d in range(len(processos)):
         dicio_process[d] = [processos[d][0],processos[d][1], st1]
         status.append(st1)
-    # print(dicio_process)
+    print(dicio_process)
 
     while True:
         if st3 not in status:
@@ -22,7 +22,7 @@ def PrimeiroAChegar(processos):
                 if dicio_process[key][2] == st1 and dicio_process[key][0] <= timer:
                     dicio_process[key][2] = st2
                     status[key] = st2
-        
+
         timer += 1
         break
 
