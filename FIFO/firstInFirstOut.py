@@ -18,7 +18,7 @@ def PrimeiroAChegar(processos):
 
     while True:
         if st3 not in status:
-            for key, value in dicio_process.items():
+            for key in dicio_process.keys():
                 if dicio_process[key][2] == st1 and dicio_process[key][0] <= timer:
                     dicio_process[key][2] = st2
                     status[key] = st2
