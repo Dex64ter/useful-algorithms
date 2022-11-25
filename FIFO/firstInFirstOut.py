@@ -1,50 +1,44 @@
-st1 = 'ESPERA'
+from time import sleep
+
+st1 = 'FORA'
 st2 = 'PRONTO'
 st3 = 'EXECUTANDO'
 st4 = 'TERMINADO'
 
-def removeAll(l, el):
-    result = []
-    for i in l:
-        if i != el:
-            result.append(i)
-    return result
+def verificaStatus(dicio_process):
+    status = []
+    for val in dicio_process.values():
+        status.append(val[2])
 
+    return status
 
 def PrimeiroAChegar(processos):
     timer = 0
-    fila = []
     dicio_process = {}
-    status = [0]*len(processos)
-    print(dicio_process)
+    tamanho = len(processos)
 
-    while True:
-        for d in range(len(processos)):
-            if processos[d][0] <= timer and status[d] != st3:
-                dicio_process[d] = [processos[d][0],processos[d][1], st2]
-                status[d] = st2
+    for p in range(len(processos)):
+            if processos[p][0] <= timer:
+                dicio_process[p] = [processos[p][0],processos[p][1], st2]
+            else:
+                dicio_process[p] = [processos[p][0],processos[p][1], st1]
 
+    while tamanho > 0:
         for k in dicio_process.keys():
-            if st3 not in status:
+            if dicio_process[k][2] == st3:
+                timer += dicio_process[k][1]
+                dicio_process.pop(k)
+                tamanho -= 1
+                break
+            elif st3 not in verificaStatus(dicio_process):
                 if dicio_process[k][2] == st2:
                     dicio_process[k][2] = st3
-                    status[k] = st3
-            else:
-                for j in range(len(status)):
-                    if status[j] == st3:    
-                        fila.append(j)
-                        if fila.count(j) == dicio_process[j][1]:
-                            fila = removeAll(fila, j)
-                            dicio_process[j][2] = st4
-                            status[j] = st4
-                        break
-        print(dicio_process)
-        if (st2 not in status) or (0 not in status):
-            break
+            elif dicio_process[k][2] == st1 and dicio_process[k][0] <= timer:
+                dicio_process[k][2] = st2
 
-        timer += 1
-        
-
+            sleep(1)
+        print(dicio_process, timer)
+    
 
 if __name__ == "__main__":
     l = []
