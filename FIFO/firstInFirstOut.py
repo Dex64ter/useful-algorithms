@@ -17,13 +17,17 @@ def PrimeiroAChegar(processos):
     dicio_process = {}
     status = [0]*len(processos)
     print(dicio_process)
-
-    while True:
-        for d in range(len(processos)):
-            if processos[d][0] <= timer and status[d] != st3:
+    for d in range(len(processos)):
+        if processos[d][0] <= timer:
+            if status[d] != st3:
                 dicio_process[d] = [processos[d][0],processos[d][1], st2]
                 status[d] = st2
+        else:
+            dicio_process[d] = [processos[d][0],processos[d][1], st1]
+            status[d] = st1
 
+
+    while True:
         for k in dicio_process.keys():
             if st3 not in status:
                 if dicio_process[k][2] == st2:
