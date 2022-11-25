@@ -28,20 +28,23 @@ def PrimeiroAChegar(processos):
 
 
     while True:
+        for j in range(len(status)):
+            if status[j] == st3:    
+                fila.append(j)
+                if fila.count(j) == dicio_process[j][1]:
+                    fila = removeAll(fila, j)
+                    dicio_process[j][2] = st4
+                    status[j] = st4
+                break
+
         for k in dicio_process.keys():
             if st3 not in status:
                 if dicio_process[k][2] == st2:
                     dicio_process[k][2] = st3
                     status[k] = st3
-            else:
-                for j in range(len(status)):
-                    if status[j] == st3:    
-                        fila.append(j)
-                        if fila.count(j) == dicio_process[j][1]:
-                            fila = removeAll(fila, j)
-                            dicio_process[j][2] = st4
-                            status[j] = st4
-                        break
+            if dicio_process[k][2] == st1:
+                if dicio_process[k][0] <= timer:
+                    dicio_process[k][2] = st2
         print(dicio_process)
         if (st2 not in status) or (0 not in status):
             break
